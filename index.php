@@ -1,3 +1,36 @@
+<?php
+session_start();
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $_SESSION['level'] = $_POST['level'];
+    $_SESSION['operator'] = $_POST['operator'];
+    $_SESSION['numItems'] = $_POST['numItems'];
+    $_SESSION['maxDifference'] = $_POST['maxDifference'];
+    $_SESSION['rangeStart'] = isset($_POST['rangeStart']) ? $_POST['rangeStart'] : 1;
+    $_SESSION['rangeEnd'] = isset($_POST['rangeEnd']) ? $_POST['rangeEnd'] : 10;
+}
+
+$level = isset($_SESSION['level']) ? $_SESSION['level'] : 'lvl1';
+$operator = isset($_SESSION['operator']) ? $_SESSION['operator'] : 'add';
+$numItems = isset($_SESSION['numItems']) ? $_SESSION['numItems'] : 10;
+$maxDifference = isset($_SESSION['maxDifference']) ? $_SESSION['maxDifference'] : 10;
+$rangeStart = isset($_SESSION['rangeStart']) ? $_SESSION['rangeStart'] : 1;
+$rangeEnd = isset($_SESSION['rangeEnd']) ? $_SESSION['rangeEnd'] : 10;
+
+if ($level == 'customlvl') {
+    $rangeStart = isset($_POST['custom_min']) ? $_POST['custom_min'] : 1;
+    $rangeEnd = isset($_POST['custom_max']) ? $_POST['custom_max'] : 10;
+} elseif ($level == 'lvl1') {
+    $rangeStart = 1;
+    $rangeEnd = 10;
+} elseif ($level == 'lvl2') {
+    $rangeStart = 1;
+    $rangeEnd = 100;
+} elseif ($level == 'lvl3') {
+    $rangeStart = 1;
+    $rangeEnd = 1000;
+}
+?>
+    
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -148,10 +181,10 @@
                     </div>
                     <div class="quiz-content">
                         <div class="button-panel">
-                            <button type="button" id="btnA" onclick="checkAnswer('A')" disabled>A</button><br>
-                            <button type="button" id="btnB" onclick="checkAnswer('B')" disabled>B</button><br>
-                            <button type="button" id="btnC" onclick="checkAnswer('C')" disabled>C</button><br>
-                            <button type="button" id="btnD" onclick="checkAnswer('D')" disabled>D</button><br>
+                            <button type="button" id="btnA" onclick="checkAnswer('btnA')" disabled>A</button><br>
+                            <button type="button" id="btnB" onclick="checkAnswer('btnB')" disabled>B</button><br>
+                            <button type="button" id="btnC" onclick="checkAnswer('btnC')" disabled>C</button><br>
+                            <button type="button" id="btnD" onclick="checkAnswer('btnD')" disabled>D</button><br>
                         </div>
                         <fieldset id="scoring">
                             <legend>Score</legend>
@@ -168,7 +201,7 @@
                 </div>
                 <div class="button-content">
                         <button type="button" id="startQuiz" onclick="startQuiz()">Start Quiz</button>
-                        <button>Close</button>
+                        <button type="button" id="endQuiz" onclick="endQuiz()" style="display:none">End Quiz</button>
                         <button type="button" onclick="toggleSettings()">Settings</button>
                 </div>
             </div>
@@ -222,15 +255,117 @@
                 <div id="inputnumber">
                     <label for="numItems">Number of Items: </label>
                     <input type="text" id="numItems" name="numItems" value="10"></br>
-                    <label for="numItems">Maximum difference from the correct answer: </label>
-                    <input type="text" id="numItems" name="numItems" value="10">
+                    <label for="diffans">Maximum difference from the correct answer: </label>
+                    <input type="text" id="diffans" name="diffans" value="10">
                 </div>
                 <div>
-                    <input type="submit" value="Submit">
+                <input type="submit" value="Save" onclick="updateQuizSettings()">
                 </div>
             </div>
         </div>
         <script>
+            let score = 0;
+            let currentQuestionIndex = 0;
+            let questions = [];
+            let currentLevel = { min: <?php echo $rangeStart; ?>, max: <?php echo $rangeEnd; ?> };
+            let operator = '<?php echo $operator; ?>';
+            let numItems = <?php echo $numItems; ?>;
+            let maxDifference = <?php echo $maxDifference; ?>;
+            
+            function startQuiz() {
+                document.getElementById('startQuiz').style.display = 'none';
+                document.getElementById('endQuiz').style.display = 'block';
+                document.querySelectorAll('.button-panel button').forEach(btn => btn.disabled = false);
+                generateQuestions();
+                showQuestion();
+            }
+            function endQuiz() {
+                alert(`Quiz ended! You scored ${score} out of ${numItems}`);
+                score = 0;
+                currentQuestionIndex = 0;
+                document.querySelectorAll('.button-panel button').forEach(btn => btn.disabled = true);
+                document.getElementById('startQuiz').style.display = 'block';
+                document.getElementById('endQuiz').style.display = 'none';
+                document.getElementById('correctitems').value = score;
+                document.getElementById('wrongitems').value = 0;
+                document.getElementById('question').textContent = "0 * 0 = 0";
+            }
+            function generateQuestions() {
+                questions = [];
+                for (let i = 0; i < numItems; i++) {
+                    let a = Math.floor(Math.random() * (currentLevel.max - currentLevel.min + 1)) + currentLevel.min;
+                    let b = Math.floor(Math.random() * (currentLevel.max - currentLevel.min + 1)) + currentLevel.min;
+                    let correctAnswer = 0;
+                    let operatorSymbol = '';
+                    
+                    if (operator === 'add') {
+                        correctAnswer = a + b;
+                        operatorSymbol = '+';
+                    } else if (operator === 'sub') {
+                        correctAnswer = a - b;
+                        operatorSymbol = '-';
+                    } else if (operator === 'mul') {
+                        correctAnswer = a * b;
+                        operatorSymbol = '*';
+                    } else if (operator === 'comb') {
+                        operator = Math.random() < 0.5 ? 'add' : 'mul';
+                        if (operator === 'add') {
+                            correctAnswer = a + b;
+                            operatorSymbol = '+';
+                        } else {
+                            correctAnswer = a * b;
+                            operatorSymbol = '*';
+                        }
+                    }
+                    let answers = [correctAnswer];
+                    while (answers.length < 4) {
+                        let randomAnswer = correctAnswer + Math.floor(Math.random() * (maxDifference * 2 + 1)) - maxDifference;
+                        
+                        if (!answers.includes(randomAnswer)) {
+                            answers.push(randomAnswer);
+                        }
+                    }                    
+                    answers.sort(() => Math.random() - 0.5);
+                    questions.push({
+                        question: `${a} ${operatorSymbol} ${b}`,
+                        answers: answers,
+                        correctAnswer: correctAnswer
+                    });
+                }
+            }
+            function showQuestion() {
+                if (currentQuestionIndex >= questions.length) {
+                    endQuiz();
+                    return;
+                }
+                const question = questions[currentQuestionIndex];
+                document.getElementById('question').textContent = question.question;
+                document.querySelectorAll('.button-panel button').forEach((button, index) => {
+                    button.textContent = question.answers[index];
+                    button.disabled = false;
+                });
+            }
+            function checkAnswer(buttonId) {
+                const question = questions[currentQuestionIndex];
+                const selectedAnswer = document.getElementById(buttonId).textContent.trim();
+                
+                if (selectedAnswer == question.correctAnswer) {
+                    score++;
+                }
+                document.getElementById('correctitems').value = score;
+                document.getElementById('wrongitems').value = currentQuestionIndex + 1 - score;
+                currentQuestionIndex++;
+                showQuestion();
+            }
+            function updateQuizSettings() {
+                const customLevel = document.getElementById('customlvl').checked;
+                currentLevel.min = customLevel ? parseInt(document.getElementById('rangeStart').value) : 1;
+                currentLevel.max = customLevel ? parseInt(document.getElementById('rangeEnd').value) : 10;
+                operator = document.querySelector('input[name="operator"]:checked').id;
+                numItems = parseInt(document.getElementById('numItems').value);
+                maxDifference = parseInt(document.getElementById('diffans').value);
+                toggleSettings();
+            }
             function toggleCustom(enable) {
                 document.getElementById('rangeStart').disabled = !enable;
                 document.getElementById('rangeEnd').disabled = !enable;
