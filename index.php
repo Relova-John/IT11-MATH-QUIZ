@@ -65,7 +65,7 @@
                 gap: 10px;
                 width: auto;
                 height: auto;
-                margin-top: 20px
+                margin-top: 20px;
             }
             .score-row {
                 display: flex;
@@ -144,14 +144,14 @@
             <div class="quiz-panel">
                 <div>
                     <div>
-                        <h3>0 * 0 = 0 </h3>
+                        <h3 id="question">0 * 0 = 0 </h3>
                     </div>
                     <div class="quiz-content">
                         <div class="button-panel">
-                            <button type="button" onclick="" disabled>A</button><br>
-                            <button type="button" onclick="" disabled>B</button><br>
-                            <button type="button" onclick="" disabled>C</button><br>
-                            <button type="button" onclick="" disabled>D</button><br>
+                            <button type="button" id="btnA" onclick="checkAnswer('A')" disabled>A</button><br>
+                            <button type="button" id="btnB" onclick="checkAnswer('B')" disabled>B</button><br>
+                            <button type="button" id="btnC" onclick="checkAnswer('C')" disabled>C</button><br>
+                            <button type="button" id="btnD" onclick="checkAnswer('D')" disabled>D</button><br>
                         </div>
                         <fieldset id="scoring">
                             <legend>Score</legend>
@@ -167,7 +167,7 @@
                     </div>
                 </div>
                 <div class="button-content">
-                        <button>Start Quiz</button>
+                        <button type="button" id="startQuiz" onclick="startQuiz()">Start Quiz</button>
                         <button>Close</button>
                         <button type="button" onclick="toggleSettings()">Settings</button>
                 </div>
@@ -178,7 +178,7 @@
                     <fieldset id="select-level">
                         <legend>Select Level</legend>
                         <div>
-                            <input type="radio" id="lvl1" name="lvl" onclick="toggleCustom(false)">
+                            <input type="radio" id="lvl1" name="lvl" onclick="toggleCustom(false)" checked>
                             <label for="lvl1">Level 1 (1 - 10)</label>
                         </div>
                         <div>
@@ -193,16 +193,16 @@
                             <input type="radio" id="customlvl" name="lvl" onclick="toggleCustom(true)">
                             <label for="customlvl">Custom Level:</label>
                             <div class="input-range">
-                                <input type="number" class="input-box" id="rangeStart" placeholder="Min" disabled>
+                                <input type="number" class="input-box" id="rangeStart" placeholder="Min" value="1" disabled>
                                 <span> - </span>
-                                <input type="number" class="input-box" id="rangeEnd" placeholder="Max" disabled>
+                                <input type="number" class="input-box" id="rangeEnd" placeholder="Max" value="10" disabled>
                             </div>
                         </div>
                     </fieldset>
                     <fieldset id="select-operator">
                         <legend>Operator</legend>
                         <div>
-                            <input type="radio" id="add" name="operator">
+                            <input type="radio" id="add" name="operator" checked>
                             <label for="add">Addition</label>
                         </div>
                         <div>
@@ -214,16 +214,16 @@
                             <label for="mul">Multiplication</label>
                         </div>
                         <div>
-                            <input type="radio" id="div" name="operator">
-                            <label for="div">Division</label>
+                            <input type="radio" id="comb" name="operator">
+                            <label for="comb">Combination</label>
                         </div>
                     </fieldset>
                 </div>
                 <div id="inputnumber">
                     <label for="numItems">Number of Items: </label>
-                    <input type="text" id="numItems" name="numItems"></br>
+                    <input type="text" id="numItems" name="numItems" value="10"></br>
                     <label for="numItems">Maximum difference from the correct answer: </label>
-                    <input type="text" id="numItems" name="numItems">
+                    <input type="text" id="numItems" name="numItems" value="10">
                 </div>
                 <div>
                     <input type="submit" value="Submit">
@@ -243,6 +243,7 @@
                     settingsSection.style.display = "none";
                 }
             }
+            
         </script>
     </body>
 </html>
