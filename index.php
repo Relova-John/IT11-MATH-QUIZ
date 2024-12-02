@@ -14,6 +14,9 @@
                 margin: 0;
                 font-family: Arial, sans-serif;
             }
+            button {
+                cursor: pointer;
+            }
             .container {
                 background-color: white;
                 border-radius: 8px;
@@ -37,6 +40,47 @@
             .quiz-content {
                 display: flex;
                 gap: 20px;
+                align-items:flex-start;
+            }
+            .button-panel {
+                display: flex;
+                flex-direction: column;
+                gap: 20xp;
+                align-items: center;
+            }
+            .button-panel button {
+                width: 80px;
+                height: 40px;
+                font-size: 16px;
+                background-color: #d3d3d3;
+                border: none;
+                border-radius: 8px;
+            }
+            .button-panel button:hover {
+                background-color: #a3a3a3;
+            }
+            #scoring {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                width: auto;
+                height: auto;
+                margin-top: 20px
+            }
+            .score-row {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+            }
+            .score-row label {
+                width: 50px;
+                text-align: left;
+            }
+            .score-row input {
+                width: 30px;
+                text-align: center;
+                padding: 10px;
             }
             .button-content {
                 display: flex;
@@ -103,26 +147,32 @@
                         <h3>0 * 0 = 0 </h3>
                     </div>
                     <div class="quiz-content">
-                        <div>
-                            <button disabled>A</button><br>
-                            <button disabled>B</button><br>
-                            <button disabled>C</button><br>
-                            <button disabled>D</button><br>
+                        <div class="button-panel">
+                            <button type="button" onclick="" disabled>A</button><br>
+                            <button type="button" onclick="" disabled>B</button><br>
+                            <button type="button" onclick="" disabled>C</button><br>
+                            <button type="button" onclick="" disabled>D</button><br>
                         </div>
                         <fieldset id="scoring">
                             <legend>Score</legend>
-                            <label>Correct</label>
-                            <label>Wrong</label>
+                            <div class="score-row">
+                                <label for="correctitems">Correct</label>
+                                <label for="wrongitems">Wrong</label>
+                            </div>
+                            <div class="score-row">
+                                <input type="text" id="correctitems" name="correctitems" readonly>
+                                <input type="text" id="wrongitems" name="wrongitems" readonly>
+                            </div>
                         </fieldset>
                     </div>
                 </div>
                 <div class="button-content">
                         <button>Start Quiz</button>
                         <button>Close</button>
-                        <button>Settings</button>
+                        <button type="button" onclick="toggleSettings()">Settings</button>
                 </div>
             </div>
-            <div>
+            <div id="settings-section" style="display:none;">
                 <h1>Settings</h1>
                 <div class="settings-panel">
                     <fieldset id="select-level">
@@ -184,6 +234,14 @@
             function toggleCustom(enable) {
                 document.getElementById('rangeStart').disabled = !enable;
                 document.getElementById('rangeEnd').disabled = !enable;
+            }
+            function toggleSettings() {
+                const settingsSection = document.getElementById('settings-section');
+                if (settingsSection.style.display === "none") {
+                    settingsSection.style.display = "block";
+                } else {
+                    settingsSection.style.display = "none";
+                }
             }
         </script>
     </body>
