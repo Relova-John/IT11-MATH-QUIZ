@@ -242,7 +242,7 @@ $rangeEnd = isset($_SESSION['rangeEnd']) ? $_SESSION['rangeEnd'] : 10;
                 <div class="button-content">
                         <button type="button" id="startQuiz" onclick="startQuiz()">Start Quiz</button>
                         <button type="button" id="endQuiz" onclick="endQuiz()" style="display:none">End Quiz</button>
-                        <button type="button" onclick="toggleSettings()">Settings</button>
+                        <button type="button" id="settingConfig" onclick="toggleSettings()">Settings</button>
                 </div>
             </div>
             <div id="settings-section" style="display:none;">
