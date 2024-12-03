@@ -166,7 +166,7 @@ $rangeEnd = isset($_SESSION['rangeEnd']) ? $_SESSION['rangeEnd'] : 10;
             #resultModal {
                 display: none;
                 position: fixed;
-                top: 50%;
+                top: 40%;
                 left: 50%;
                 transform: translate(-50%, -50%);
                 background-color: white;
@@ -323,6 +323,8 @@ $rangeEnd = isset($_SESSION['rangeEnd']) ? $_SESSION['rangeEnd'] : 10;
             
             function startQuiz() {
                 document.getElementById('startQuiz').style.display = 'none';
+                document.getElementById('settingConfig').style.display = 'none';
+                document.getElementById('settings-section').style.display = 'none';
                 document.getElementById('endQuiz').style.display = 'block';
                 document.querySelectorAll('.button-panel button').forEach(btn => btn.disabled = false);
                 generateQuestions();
@@ -359,6 +361,7 @@ $rangeEnd = isset($_SESSION['rangeEnd']) ? $_SESSION['rangeEnd'] : 10;
                                     btn.id === 'btnC' ? 'C' : 'D';
                 });
                 document.getElementById('startQuiz').style.display = 'block';
+                document.getElementById('settingConfig').style.display = 'block';
                 document.getElementById('endQuiz').style.display = 'none';
                 document.getElementById('correctitems').value = null;
                 document.getElementById('wrongitems').value = null;
