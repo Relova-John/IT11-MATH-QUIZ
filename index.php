@@ -1,34 +1,19 @@
 <?php
 session_start();
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $_SESSION['level'] = $_POST['level'];
     $_SESSION['operator'] = $_POST['operator'];
     $_SESSION['numItems'] = $_POST['numItems'];
     $_SESSION['maxDifference'] = $_POST['maxDifference'];
-    $_SESSION['rangeStart'] = isset($_POST['rangeStart']) ? $_POST['rangeStart'] : 1;
-    $_SESSION['rangeEnd'] = isset($_POST['rangeEnd']) ? $_POST['rangeEnd'] : 10;
+    $_SESSION['rangeStart'] = $_POST['rangeStart'];
+    $_SESSION['rangeEnd'] = $_POST['rangeEnd'];
 }
-
 $level = isset($_SESSION['level']) ? $_SESSION['level'] : 'lvl1';
 $operator = isset($_SESSION['operator']) ? $_SESSION['operator'] : 'add';
 $numItems = isset($_SESSION['numItems']) ? $_SESSION['numItems'] : 10;
 $maxDifference = isset($_SESSION['maxDifference']) ? $_SESSION['maxDifference'] : 10;
 $rangeStart = isset($_SESSION['rangeStart']) ? $_SESSION['rangeStart'] : 1;
 $rangeEnd = isset($_SESSION['rangeEnd']) ? $_SESSION['rangeEnd'] : 10;
-
-if ($level == 'customlvl') {
-    $rangeStart = isset($_POST['custom_min']) ? $_POST['custom_min'] : 1;
-    $rangeEnd = isset($_POST['custom_max']) ? $_POST['custom_max'] : 10;
-} elseif ($level == 'lvl1') {
-    $rangeStart = 1;
-    $rangeEnd = 10;
-} elseif ($level == 'lvl2') {
-    $rangeStart = 1;
-    $rangeEnd = 100;
-} elseif ($level == 'lvl3') {
-    $rangeStart = 1;
-    $rangeEnd = 1000;
-}
 ?>
     
 <!DOCTYPE html>
@@ -42,7 +27,7 @@ if ($level == 'customlvl') {
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                height: 100vh;
+                height: 70vh;
                 background-color: #f8f9fa;
                 margin: 0;
                 font-family: Arial, sans-serif;
@@ -127,7 +112,9 @@ if ($level == 'customlvl') {
             }
             .settings-panel {
                 margin-top: 20px;
-                display: block;
+                display: flex;
+                justify-content: center;
+                gap: 20px;
             }
             fieldset {
                 border: 2px solid #000000;
@@ -137,6 +124,7 @@ if ($level == 'customlvl') {
             #select-level, #select-operator {
                 width: auto;
                 height: auto;
+                padding: 20px;
             }
             legend {
                 font-weight: bold;
@@ -263,52 +251,53 @@ if ($level == 'customlvl') {
                     <fieldset id="select-level">
                         <legend>Select Level</legend>
                         <div>
-                            <input type="radio" id="lvl1" name="lvl" onclick="toggleCustom(false)" checked>
+                            <input type="radio" id="lvl1" name="lvl" onclick="toggleCustom(false)" <?php echo ($level == 'lvl1' ? 'checked' : ''); ?>>
                             <label for="lvl1">Level 1 (1 - 10)</label>
                         </div>
                         <div>
-                            <input type="radio" id="lvl2" name="lvl" onclick="toggleCustom(false)">
+                            <input type="radio" id="lvl2" name="lvl" onclick="toggleCustom(false)" <?php echo ($level == 'lvl2' ? 'checked' : ''); ?>>
                             <label for="lvl2">Level 2 (1 - 100)</label>
                         </div>
                         <div>
-                            <input type="radio" id="lvl3" name="lvl" onclick="toggleCustom(false)">
+                            <input type="radio" id="lvl3" name="lvl" onclick="toggleCustom(false)" <?php echo ($level == 'lvl3' ? 'checked' : ''); ?>>
                             <label for="lvl3">Level 3 (1 - 1000)</label>
                         </div>
                         <div>
-                            <input type="radio" id="customlvl" name="lvl" onclick="toggleCustom(true)">
+                            <input type="radio" id="customlvl" name="lvl" onclick="toggleCustom(true)" <?php echo ($level == 'custom' ? 'checked' : ''); ?>>
                             <label for="customlvl">Custom Level:</label>
                             <div class="input-range">
-                                <input type="number" class="input-box" id="rangeStart" placeholder="Min" value="1" disabled>
+                                <input type="number" class="input-box" id="rangeStart" value="<?php echo $rangeStart; ?>" <?php echo ($level == 'custom' ? '' : 'disabled'); ?>>
                                 <span> - </span>
-                                <input type="number" class="input-box" id="rangeEnd" placeholder="Max" value="10" disabled>
+                                <input type="number" class="input-box" id="rangeEnd" value="<?php echo $rangeEnd; ?>" <?php echo ($level == 'custom' ? '' : 'disabled'); ?>>
                             </div>
                         </div>
                     </fieldset>
                     <fieldset id="select-operator">
                         <legend>Operator</legend>
                         <div>
-                            <input type="radio" id="add" name="operator" checked>
+                            <input type="radio" id="add" name="operator" <?php echo ($operator == 'add' ? 'checked' : ''); ?>>
                             <label for="add">Addition</label>
                         </div>
                         <div>
-                            <input type="radio" id="sub" name="operator">
+                            <input type="radio" id="sub" name="operator" <?php echo ($operator == 'sub' ? 'checked' : ''); ?>>
                             <label for="sub">Subtraction</label>
                         </div>
                         <div>
-                            <input type="radio" id="mul" name="operator">
+                            <input type="radio" id="mul" name="operator" <?php echo ($operator == 'mul' ? 'checked' : ''); ?>>
                             <label for="mul">Multiplication</label>
                         </div>
                         <div>
-                            <input type="radio" id="comb" name="operator">
+                            <input type="radio" id="comb" name="operator" <?php echo ($operator == 'comb' ? 'checked' : ''); ?>>
                             <label for="comb">Combination</label>
                         </div>
                     </fieldset>
                 </div>
                 <div id="inputnumber">
                     <label for="numItems">Number of Items: </label>
-                    <input type="text" id="numItems" name="numItems" value="10"></br>
+                    <input type="text" id="numItems" name="numItems" value="<?php echo $numItems; ?>"></br>
                     <label for="diffans">Maximum difference from the correct answer: </label>
-                    <input type="text" id="diffans" name="diffans" value="10">
+                    <input type="text" id="diffans" name="diffans" value="<?php echo $maxDifference; ?>">
+
                 </div>
                 <div>
                 <input type="submit" value="Save" onclick="updateQuizSettings()">
@@ -324,7 +313,10 @@ if ($level == 'customlvl') {
             let score = 0;
             let currentQuestionIndex = 0;
             let questions = [];
-            let currentLevel = { min: <?php echo $rangeStart; ?>, max: <?php echo $rangeEnd; ?> };
+            let currentLevel = {
+                    min: <?php echo $rangeStart; ?>,
+                    max: <?php echo $rangeEnd; ?>
+                };
             let operator = '<?php echo $operator; ?>';
             let numItems = <?php echo $numItems; ?>;
             let maxDifference = <?php echo $maxDifference; ?>;
@@ -380,7 +372,6 @@ if ($level == 'customlvl') {
                     let b = Math.floor(Math.random() * (currentLevel.max - currentLevel.min + 1)) + currentLevel.min;
                     let correctAnswer = 0;
                     let operatorSymbol = '';
-                    
                     if (operator === 'add') {
                         correctAnswer = a + b;
                         operatorSymbol = '+';
@@ -391,23 +382,27 @@ if ($level == 'customlvl') {
                         correctAnswer = a * b;
                         operatorSymbol = '*';
                     } else if (operator === 'comb') {
-                        operator = Math.random() < 0.5 ? 'add' : 'mul';
-                        if (operator === 'add') {
-                            correctAnswer = a + b;
-                            operatorSymbol = '+';
-                        } else {
-                            correctAnswer = a * b;
-                            operatorSymbol = '*';
-                        }
+                        const randomOperator = Math.random();
+                        if (randomOperator < 0.33) {
+                        correctAnswer = a + b;
+                        operatorSymbol = '+';
+                    } else if (randomOperator < 0.66) {
+                        correctAnswer = a - b;
+                        operatorSymbol = '-';
+                    } else {
+                        correctAnswer = a * b;
+                        operatorSymbol = '*';
                     }
+                    }
+
                     let answers = [correctAnswer];
                     while (answers.length < 4) {
                         let randomAnswer = correctAnswer + Math.floor(Math.random() * (maxDifference * 2 + 1)) - maxDifference;
-                        
                         if (!answers.includes(randomAnswer)) {
                             answers.push(randomAnswer);
                         }
-                    }                    
+                    }
+                    
                     answers.sort(() => Math.random() - 0.5);
                     questions.push({
                         question: `${a} ${operatorSymbol} ${b}`,
@@ -429,28 +424,58 @@ if ($level == 'customlvl') {
                 });
             }
             function checkAnswer(buttonId) {
-                    const question = questions[currentQuestionIndex];
-                    const selectedAnswer = document.getElementById(buttonId).textContent.trim();
+                const question = questions[currentQuestionIndex];
+                const selectedAnswer = document.getElementById(buttonId).textContent.trim();
 
-                    if (selectedAnswer == question.correctAnswer) {
-                        score++;
-                        document.getElementById('remarks').value = "Correct.";
-                    } else {
-                        document.getElementById('remarks').value = `Wrong Answer, ${question.question} = ${question.correctAnswer}`;
-                    }
-                    document.getElementById('correctitems').value = score;
-                    document.getElementById('wrongitems').value = currentQuestionIndex + 1 - score;
-                    currentQuestionIndex++;
-                    showQuestion();
+                if (selectedAnswer == question.correctAnswer) {
+                    score++;
+                    document.getElementById('remarks').value = "Correct.";
+                } else {
+                    document.getElementById('remarks').value = `Wrong Answer, ${question.question} = ${question.correctAnswer}`;
                 }
+                document.getElementById('correctitems').value = score;
+                document.getElementById('wrongitems').value = currentQuestionIndex + 1 - score;
+                currentQuestionIndex++;
+                showQuestion();
+            }
             function updateQuizSettings() {
                 const customLevel = document.getElementById('customlvl').checked;
-                currentLevel.min = customLevel ? parseInt(document.getElementById('rangeStart').value) : 1;
-                currentLevel.max = customLevel ? parseInt(document.getElementById('rangeEnd').value) : 10;
-                operator = document.querySelector('input[name="operator"]:checked').id;
-                numItems = parseInt(document.getElementById('numItems').value);
-                maxDifference = parseInt(document.getElementById('diffans').value);
-                toggleSettings();
+                let rangeStart = 1;
+                let rangeEnd = 10;
+                if (customLevel) {
+                    rangeStart = parseInt(document.getElementById('rangeStart').value);
+                    rangeEnd = parseInt(document.getElementById('rangeEnd').value);
+                } else if (document.getElementById('lvl1').checked) {
+                    rangeStart = 1;
+                    rangeEnd = 10;
+                } else if (document.getElementById('lvl2').checked) {
+                    rangeStart = 1;
+                    rangeEnd = 100;
+                } else if (document.getElementById('lvl3').checked) {
+                    rangeStart = 1;
+                    rangeEnd = 1000;
+                }
+
+                const operator = document.querySelector('input[name="operator"]:checked').id;
+                const numItems = parseInt(document.getElementById('numItems').value);
+                const maxDifference = parseInt(document.getElementById('diffans').value);
+                const formData = new FormData();
+                formData.append('level', customLevel ? 'custom' : document.querySelector('input[name="lvl"]:checked').id);
+                formData.append('operator', operator);
+                formData.append('numItems', numItems);
+                formData.append('maxDifference', maxDifference);
+                formData.append('rangeStart', rangeStart);
+                formData.append('rangeEnd', rangeEnd);
+                fetch('', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(() => {
+                    toggleSettings();
+                    location.reload();
+                })
+                .catch(error => console.error('Error updating quiz settings:', error));
             }
             function toggleCustom(enable) {
                 document.getElementById('rangeStart').disabled = !enable;
@@ -464,7 +489,6 @@ if ($level == 'customlvl') {
                     settingsSection.style.display = "none";
                 }
             }
-            
         </script>
     </body>
 </html>
