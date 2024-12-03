@@ -115,6 +115,10 @@ if ($level == 'customlvl') {
                 text-align: center;
                 padding: 10px;
             }
+            #remarks {
+                width: 250px;
+                margin-left: 20px;
+            }
             .button-content {
                 display: flex;
                 flex-direction: column;
@@ -167,6 +171,50 @@ if ($level == 'customlvl') {
             input[type="submit"]:hover {
                 background-color: #f0f0f0;
             }
+            @keyframes fadeIn {
+                0% { opacity: 0; }
+                100% { opacity: 1; }
+            }
+            #resultModal {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: white;
+                padding: 30px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+                border-radius: 10px;
+                text-align: center;
+                max-width: 400px;
+                width: 100%;
+                opacity: 0;
+                animation: fadeIn 0.5s forwards;
+            }
+            #resultModal h3 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            #resultModal p {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+            #finalScore, #finalGrade {
+                font-weight: bold;
+            }
+            #closeResultBtn {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                font-size: 16px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                margin-top: 20px;
+            }
+            #closeResultBtn:hover {
+                background-color: #45a049;
+            }
         </style>
     </head>
     <body>
@@ -174,11 +222,11 @@ if ($level == 'customlvl') {
             <div>
                 <h2>Math</h2>
             </div>
+            <div>
+                <h3 id="question">0 * 0 = 0 </h3>
+            </div>
             <div class="quiz-panel">
                 <div>
-                    <div>
-                        <h3 id="question">0 * 0 = 0 </h3>
-                    </div>
                     <div class="quiz-content">
                         <div class="button-panel">
                             <button type="button" id="btnA" onclick="checkAnswer('btnA')" disabled>A</button><br>
@@ -195,7 +243,11 @@ if ($level == 'customlvl') {
                             <div class="score-row">
                                 <input type="text" id="correctitems" name="correctitems" readonly>
                                 <input type="text" id="wrongitems" name="wrongitems" readonly>
+                                
                             </div>
+                            <div class="score-row">
+                                <label for="remarks">Remarks</label>
+                                <input type="text" id="remarks" name="remarks" readonly>
                         </fieldset>
                     </div>
                 </div>
@@ -263,6 +315,11 @@ if ($level == 'customlvl') {
                 </div>
             </div>
         </div>
+        <div id="resultModal">
+            <h3><span id="finalScore"></span></h3>
+            <h4>Your Grade: <span id="finalGrade"></span></h4>
+            <button onclick="closeModal()">Close</button>
+        </div>
         <script>
             let score = 0;
             let currentQuestionIndex = 0;
@@ -280,15 +337,41 @@ if ($level == 'customlvl') {
                 showQuestion();
             }
             function endQuiz() {
-                alert(`Quiz ended! You scored ${score} out of ${numItems}`);
+                const grade = (score / numItems) * 100;
+                document.getElementById('finalScore').textContent = `${score} / ${numItems}`;
+                document.getElementById('finalGrade').textContent = grade.toFixed(2) + '%';
+                const finalGradeElement = document.getElementById('finalGrade');
+                const finalScoreElement = document.getElementById('finalScore');
+
+                let color = 'red'; 
+                if (grade > 70) {
+                    color = 'green';
+                } else if (grade >= 50) {
+                    color = 'orange';
+                }
+                finalGradeElement.style.color = color;
+                finalScoreElement.style.color = color;
+                document.getElementById('resultModal').style.display = 'block';
+            }
+            function closeModal() {
+                document.getElementById('resultModal').style.display = 'none';
+                resetQuiz();
+            }
+            function resetQuiz() {
                 score = 0;
                 currentQuestionIndex = 0;
-                document.querySelectorAll('.button-panel button').forEach(btn => btn.disabled = true);
+                document.querySelectorAll('.button-panel button').forEach(btn => {
+                    btn.disabled = true;
+                    btn.textContent = btn.id === 'btnA' ? 'A' :
+                                    btn.id === 'btnB' ? 'B' :
+                                    btn.id === 'btnC' ? 'C' : 'D';
+                });
                 document.getElementById('startQuiz').style.display = 'block';
                 document.getElementById('endQuiz').style.display = 'none';
-                document.getElementById('correctitems').value = score;
-                document.getElementById('wrongitems').value = 0;
+                document.getElementById('correctitems').value = null;
+                document.getElementById('wrongitems').value = null;
                 document.getElementById('question').textContent = "0 * 0 = 0";
+                document.getElementById('remarks').value = null; 
             }
             function generateQuestions() {
                 questions = [];
@@ -346,17 +429,20 @@ if ($level == 'customlvl') {
                 });
             }
             function checkAnswer(buttonId) {
-                const question = questions[currentQuestionIndex];
-                const selectedAnswer = document.getElementById(buttonId).textContent.trim();
-                
-                if (selectedAnswer == question.correctAnswer) {
-                    score++;
+                    const question = questions[currentQuestionIndex];
+                    const selectedAnswer = document.getElementById(buttonId).textContent.trim();
+
+                    if (selectedAnswer == question.correctAnswer) {
+                        score++;
+                        document.getElementById('remarks').value = "Correct.";
+                    } else {
+                        document.getElementById('remarks').value = `Wrong Answer, ${question.question} = ${question.correctAnswer}`;
+                    }
+                    document.getElementById('correctitems').value = score;
+                    document.getElementById('wrongitems').value = currentQuestionIndex + 1 - score;
+                    currentQuestionIndex++;
+                    showQuestion();
                 }
-                document.getElementById('correctitems').value = score;
-                document.getElementById('wrongitems').value = currentQuestionIndex + 1 - score;
-                currentQuestionIndex++;
-                showQuestion();
-            }
             function updateQuizSettings() {
                 const customLevel = document.getElementById('customlvl').checked;
                 currentLevel.min = customLevel ? parseInt(document.getElementById('rangeStart').value) : 1;
